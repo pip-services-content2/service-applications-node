@@ -17,10 +17,10 @@ This microservice has no dependencies on other microservices.
 * [Configuration Guide](doc/Configuration.md)
 * [Deployment Guide](doc/Deployment.md)
 * Client SDKs
-  - [Node.js SDK](https://github.com/pip-services/client-applications-node)
-  - [Java SDK](https://github.com/pip-services/client-applications-java)
-  - [.NET SDK](https://github.com/pip-services/client-applications-dotnet)
-  - [Go SDK](https://github.com/pip-services/client-applications-go)
+  - [Node.js SDK](https://github.com/pip-services-content2/client-applications-node)
+  - [Java SDK](https://github.com/pip-services-content2/client-applications-java)
+  - [.NET SDK](https://github.com/pip-services-content2/client-applications-dotnet)
+  - [Go SDK](https://github.com/pip-services-content2/client-applications-go)
 * Communication Protocols
   - [HTTP Version 1](doc/HttpProtocolV1.md)
   - [Seneca Version 1](doc/SenecaProtocolV1.md)
@@ -43,20 +43,15 @@ class ApplicationV1 implements IStringIdentifiable {
 }
 
 interface IApplicationsV1 {
-    getApplications(correlationId: string, filter: FilterParams, paging: PagingParams, 
-        callback: (err: any, page: DataPage<ApplicationV1>) => void): void;
+    getApplications(correlationId: string, filter: FilterParams, paging: PagingParams): Promise<DataPage<ApplicationV1>>;
 
-    getApplicationById(correlationId: string, application_id: string, 
-        callback: (err: any, application: ApplicationV1) => void): void;
+    getApplicationById(correlationId: string, application_id: string): Promise<ApplicationV1>;
 
-    createApplication(correlationId: string, application: ApplicationV1, 
-        callback: (err: any, application: ApplicationV1) => void): void;
+    createApplication(correlationId: string, application: ApplicationV1): Promise<ApplicationV1>;
 
-    updateApplication(correlationId: string, application: ApplicationV1, 
-        callback: (err: any, application: ApplicationV1) => void): void;
+    updateApplication(correlationId: string, application: ApplicationV1): Promise<ApplicationV1>;
 
-    deleteApplicationById(correlationId: string, application_id: string,
-        callback: (err: any, application: ApplicationV1) => void): void;
+    deleteApplicationById(correlationId: string, application_id: string): Promise<ApplicationV1>;
 }
 ```
 
@@ -143,16 +138,14 @@ Instantiate the client and open connection to the microservice
 var client = sdk.ApplicationsHttpClientV1(config);
 
 // Connect to the microservice
-client.open(null, function(err) {
-    if (err) {
-        console.error('Connection to the microservice failed');
-        console.error(err);
-        return;
-    }
-    
+try {
+    await client.open(null);
     // Work with the microservice
     ...
-});
+} catch(err) {
+    console.error('Connection to the microservice failed');
+    console.error(err);
+}
 ```
 
 Now the client is ready to perform operations
@@ -164,18 +157,15 @@ var application = {
     product: 'My Samples'
 };
 
-client.createApplication(
+let application = await client.createApplication(
     null,
-    application,
-    function (err, application) {
-        ...
-    }
+    application
 );
 ```
 
 ```javascript
 // Get the list of applications for 'My Samples' product
-client.getApplications(
+let page = await client.getApplications(
     null,
     {
         product: 'My Samples'
@@ -184,9 +174,6 @@ client.getApplications(
         total: true,
         skip: 0,
         take: 10
-    },
-    function(err, page) {
-    ...    
     }
 );
 ```    

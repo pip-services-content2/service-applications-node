@@ -32,19 +32,16 @@ var params = {
     ... the rest params ...
 };
 
-lambda.invoke(
+let response = await lambda.invoke(
     {
         FunctionName: arn,
         InvocationType: 'RequestResponse',
         LogType: 'None',
         Payload: JSON.stringify(params)
-    },
-    function (err, response) {
-        if (err) ...
-        var result = JSON.parse(response.Payload);
-        ...
     }
 );
+
+var result = JSON.parse(response.Payload);
 ```
 
 * [ApplicationV1 class](#class1)
